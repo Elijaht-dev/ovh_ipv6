@@ -15,14 +15,15 @@ from homeassistant.helpers.typing import ConfigType
 
 _LOGGER = logging.getLogger(__name__)  # Remove the parentheses
 
-# Define custom constants since they don't exist in HA core
+# Define all custom constants
+DOMAIN = "ovh_ipv6"
 CONF_OVH_AK = "ovh_ak"
 CONF_OVH_AS = "ovh_as"
 CONF_OVH_CK = "ovh_ck"
 CONF_DNSZONE = "dnszone"
 CONF_DNSID = "dnsid"
+CONF_SCAN_INTERVAL = "scan_interval"
 
-DOMAIN = "ovh_ipv6"
 DEFAULT_INTERVAL = timedelta(minutes=15)
 
 CONFIG_SCHEMA = vol.Schema(
