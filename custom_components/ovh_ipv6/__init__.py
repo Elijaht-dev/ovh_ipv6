@@ -1,7 +1,5 @@
 """Integrate with OVH ipv6 DNS service."""
-import json
 import ovh
-import asyncio
 from datetime import timedelta
 import logging
 
@@ -13,7 +11,7 @@ import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.typing import ConfigType
 
-_LOGGER = logging.getLogger(__name__)  # Remove the parentheses
+_LOGGER = logging.getLogger(__name__)
 
 # Define all custom constants
 DOMAIN = "ovh_ipv6"
@@ -119,4 +117,3 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     # Do first update
     success = await update_dns_record()
     return success
-``` 

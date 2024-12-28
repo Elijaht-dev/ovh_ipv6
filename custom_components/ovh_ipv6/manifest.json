@@ -1,11 +1,11 @@
 {
   "domain": "ovh_ipv6",
-  "name": "OVH DynHost ipv6",
-  "documentation": "https://github.com/Elijaht-dev/ovh_ipv6/blob/main/README.md",
+  "name": "OVH IPv6 DNS Updater",
+  "documentation": "https://github.com/Elijaht-dev/ovh_ipv6",
   "issue_tracker": "https://github.com/Elijaht-dev/ovh_ipv6/issues",
   "codeowners": ["@Elijaht-dev"],
   "iot_class": "cloud_polling",
-  "config_flow": false,
-  "version": "0.0.3",
+  "config_flow": true,
+  "version": "0.0.5",
   "requirements": ["ovh==1.2.0"]
 }

@@ -1,0 +1,25 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up OVH IPv6 DNS",
+        "description": "Enter your OVH API credentials and DNS details",
+        "data": {
+          "ovh_ak": "Application Key",
+          "ovh_as": "Application Secret",
+          "ovh_ck": "Consumer Key",
+          "dnszone": "DNS Zone",
+          "dnsid": "DNS Record ID"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Invalid authentication credentials",
+      "invalid_dns": "DNS zone or record ID not found",
+      "unknown": "Unexpected error"
+    },
+    "abort": {
+      "already_configured": "OVH DNS zone is already configured"
+    }
+  }
+}

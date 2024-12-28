@@ -1,0 +1,8 @@
+"""Constants for the OVH IPv6 DNS integration."""
+DOMAIN = "ovh_ipv6"
+CONF_OVH_AK = "ovh_ak"
+CONF_OVH_AS = "ovh_as"
+CONF_OVH_CK = "ovh_ck"
+CONF_DNSZONE = "dnszone"
+CONF_DNSID = "dnsid"
+CONF_SCAN_INTERVAL = "scan_interval"
