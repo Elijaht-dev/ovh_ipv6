@@ -35,14 +35,17 @@ class OvhIpv6ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             try:
-                client = ovh.Client(
-                    endpoint='ovh-eu',
-                    application_key=user_input[CONF_OVH_AK],
-                    application_secret=user_input[CONF_OVH_AS],
-                    consumer_key=user_input[CONF_OVH_CK],
-                )
+                def create_client():
+                    return ovh.Client(
+                        endpoint='ovh-eu',
+                        application_key=user_input[CONF_OVH_AK],
+                        application_secret=user_input[CONF_OVH_AS],
+                        consumer_key=user_input[CONF_OVH_CK],
+                    )
+
+                client = await self.hass.async_add_executor_job(create_client)
                 
-                # Test the connection by trying to get the DNS record
+                # Test the connection
                 await self.hass.async_add_executor_job(
                     client.get,
                     f"/domain/zone/{user_input[CONF_DNSZONE]}/record/{user_input[CONF_DNSID]}"
