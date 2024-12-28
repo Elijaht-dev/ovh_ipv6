@@ -79,20 +79,17 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
             _LOGGER.error("Error getting IPv6 address: %s", str(e))
             return None
 
-    async def update_dns_record(now=None):
+    async def update_dns_record(now=None) -> bool:
         """Update the OVH DNS record."""
         try:
-            # Get current IPv6
             current_ipv6 = await get_current_ipv6()
             if not current_ipv6:
                 return False
 
-            # Get current DNS record
             try:
                 dns_record = ovh_client.get(f"/domain/zone/{dnszone}/record/{dns_id}")
                 current_target = dns_record.get('target')
                 
-                # Skip update if IPv6 hasn't changed
                 if current_target == current_ipv6:
                     _LOGGER.debug("IPv6 address unchanged, skipping update")
                     return True
@@ -101,22 +98,16 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
                 _LOGGER.error("Failed to get current DNS record: %s", str(e))
                 return False
 
-            # Update DNS record if IPv6 has changed
-            result = ovh_client.put(f"/domain/zone/{dnszone}/record/{dns_id}",
+            ovh_client.put(f"/domain/zone/{dnszone}/record/{dns_id}",
                 ttl=0,
                 target=current_ipv6
             )
             
-            # Refresh the DNS zone
             ovh_client.post(f"/domain/zone/{dnszone}/refresh")
             
             _LOGGER.info("Successfully updated DNS record from %s to %s", 
                         current_target, current_ipv6)
             return True
-
-        except ovh.exceptions.APIError as e:
-            _LOGGER.error("OVH API error: %s", str(e))
-            return False
 
         except Exception as e:
             _LOGGER.error("Unexpected error updating DNS record: %s", str(e))
@@ -125,10 +116,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     # Schedule periodic updates
     async_track_time_interval(hass, update_dns_record, interval)
 
-    # Do first update and ensure we return a boolean
-    try:
-        result = await update_dns_record()
-        return bool(result)
-    except Exception as err:
-        _LOGGER.error("Error during initial DNS update: %s", str(err))
-        return False
+    # Do first update
+    success = await update_dns_record()
+    return success
+``` 
