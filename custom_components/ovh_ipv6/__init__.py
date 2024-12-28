@@ -1,56 +1,41 @@
 """Integrate with OVH ipv6 DNS service."""
+from __future__ import annotations
+
 import ovh
 from datetime import timedelta
 import logging
 
 import aiohttp
-import voluptuous as vol
 
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-import homeassistant.helpers.config_validation as cv
+from homeassistant.const import Platform
 from homeassistant.helpers.event import async_track_time_interval
-from homeassistant.helpers.typing import ConfigType
+
+from .const import (
+    DOMAIN,
+    CONF_OVH_AK,
+    CONF_OVH_AS,
+    CONF_OVH_CK,
+    CONF_DNSZONE,
+    CONF_DNSID,
+    DEFAULT_INTERVAL,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
-# Define all custom constants
-DOMAIN = "ovh_ipv6"
-CONF_OVH_AK = "ovh_ak"
-CONF_OVH_AS = "ovh_as"
-CONF_OVH_CK = "ovh_ck"
-CONF_DNSZONE = "dnszone"
-CONF_DNSID = "dnsid"
-CONF_SCAN_INTERVAL = "scan_interval"
+async def async_setup(hass: HomeAssistant, config: dict) -> bool:
+    """Set up the OVH IPv6 component."""
+    hass.data.setdefault(DOMAIN, {})
+    return True
 
-DEFAULT_INTERVAL = timedelta(minutes=15)
-
-CONFIG_SCHEMA = vol.Schema(
-    {
-        DOMAIN: vol.Schema(
-            {
-                vol.Required(CONF_OVH_AK): cv.string,
-                vol.Required(CONF_OVH_AS): cv.string, 
-                vol.Required(CONF_OVH_CK): cv.string,
-                vol.Required(CONF_DNSZONE): cv.string,
-                vol.Required(CONF_DNSID): cv.string,
-                vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_INTERVAL): vol.All(
-                    cv.time_period, cv.positive_timedelta
-                ),
-            }
-        )
-    },
-    extra=vol.ALLOW_EXTRA,
-)
-
-async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
-    """Initialize the OVH component."""
-    conf = config[DOMAIN]
-    application_key = conf.get(CONF_OVH_AK).strip()
-    application_secret = conf.get(CONF_OVH_AS).strip()
-    consumer_key = conf.get(CONF_OVH_CK).strip()
-    dnszone = conf.get(CONF_DNSZONE).strip()
-    dns_id = conf.get(CONF_DNSID).strip()
-    interval = conf.get(CONF_SCAN_INTERVAL)
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Set up OVH IPv6 from a config entry."""
+    application_key = entry.data[CONF_OVH_AK]
+    application_secret = entry.data[CONF_OVH_AS]
+    consumer_key = entry.data[CONF_OVH_CK]
+    dnszone = entry.data[CONF_DNSZONE]
+    dns_id = entry.data[CONF_DNSID]
 
     def create_ovh_client():
         """Create OVH client in executor."""
@@ -111,9 +96,20 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
             _LOGGER.error("Unexpected error updating DNS record: %s", str(e))
             return False
 
+    # Store client in hass data
+    hass.data[DOMAIN][entry.entry_id] = ovh_client
+
     # Schedule periodic updates
-    async_track_time_interval(hass, update_dns_record, interval)
+    entry.async_on_unload(
+        async_track_time_interval(hass, update_dns_record, DEFAULT_INTERVAL)
+    )
 
     # Do first update
-    success = await update_dns_record()
-    return success
+    await update_dns_record()
+    return True
+
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Unload a config entry."""
+    if entry.entry_id in hass.data[DOMAIN]:
+        hass.data[DOMAIN].pop(entry.entry_id)
+    return True
