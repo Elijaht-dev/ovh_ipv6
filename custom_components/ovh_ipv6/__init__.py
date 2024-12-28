@@ -8,21 +8,19 @@ import logging
 import aiohttp
 import voluptuous as vol
 
-from homeassistant.const import (
-    CONF_OVH_AK,
-    CONF_OVH_AS,
-    CONF_OVH_CK,
-    CONF_DNSZONE,
-    CONF_DNSID,
-    CONF_SCAN_INTERVAL
-)
-
 from homeassistant.core import HomeAssistant
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.typing import ConfigType
 
-_LOGGER = logging.getLogger(__name__())
+_LOGGER = logging.getLogger(__name__)  # Remove the parentheses
+
+# Define custom constants since they don't exist in HA core
+CONF_OVH_AK = "ovh_ak"
+CONF_OVH_AS = "ovh_as"
+CONF_OVH_CK = "ovh_ck"
+CONF_DNSZONE = "dnszone"
+CONF_DNSID = "dnsid"
 
 DOMAIN = "ovh_ipv6"
 DEFAULT_INTERVAL = timedelta(minutes=15)
