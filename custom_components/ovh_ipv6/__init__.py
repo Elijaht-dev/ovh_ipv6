@@ -54,12 +54,20 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     dns_id = conf.get(CONF_DNSID).strip()
     interval = conf.get(CONF_SCAN_INTERVAL)
 
-    ovh_client = ovh.Client(
-        endpoint='ovh-eu',
-        application_key=application_key,
-        application_secret=application_secret,
-        consumer_key=consumer_key
-    )
+    def create_ovh_client():
+        """Create OVH client in executor."""
+        return ovh.Client(
+            endpoint='ovh-eu',
+            application_key=application_key,
+            application_secret=application_secret,
+            consumer_key=consumer_key
+        )
+
+    try:
+        ovh_client = await hass.async_add_executor_job(create_ovh_client)
+    except Exception as err:
+        _LOGGER.error("Error creating OVH client: %s", str(err))
+        return False
 
     async def get_current_ipv6():
         """Get current IPv6 address from ipify.org."""
@@ -71,7 +79,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
             _LOGGER.error("Error getting IPv6 address: %s", str(e))
             return None
 
-    async def update_dns_record(now):
+    async def update_dns_record(now=None):
         """Update the OVH DNS record."""
         try:
             # Get current IPv6
@@ -117,5 +125,10 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     # Schedule periodic updates
     async_track_time_interval(hass, update_dns_record, interval)
 
-    # Do first update
-    return await hass.async_add_executor_job(lambda: update_dns_record(None))
+    # Do first update and ensure we return a boolean
+    try:
+        result = await update_dns_record()
+        return bool(result)
+    except Exception as err:
+        _LOGGER.error("Error during initial DNS update: %s", str(err))
+        return False
