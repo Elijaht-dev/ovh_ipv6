@@ -2,14 +2,11 @@
 from __future__ import annotations
 
 import ovh
-from datetime import timedelta
 import logging
-
 import aiohttp
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.const import Platform
 from homeassistant.helpers.event import async_track_time_interval
 
 from .const import (
