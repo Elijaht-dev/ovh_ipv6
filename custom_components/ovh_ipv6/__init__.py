@@ -48,11 +48,11 @@ CONFIG_SCHEMA = vol.Schema(
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Initialize the OVH component."""
     conf = config[DOMAIN]
-    application_key = conf.get(CONF_OVH_AK)
-    application_secret = conf.get(CONF_OVH_AS)
-    consumer_key = conf.get(CONF_OVH_CK)
-    dnszone = conf.get(CONF_DNSZONE)
-    dns_id = conf.get(CONF_DNSID)
+    application_key = conf.get(CONF_OVH_AK).strip()
+    application_secret = conf.get(CONF_OVH_AS).strip()
+    consumer_key = conf.get(CONF_OVH_CK).strip()
+    dnszone = conf.get(CONF_DNSZONE).strip()
+    dns_id = conf.get(CONF_DNSID).strip()
     interval = conf.get(CONF_SCAN_INTERVAL)
 
     ovh_client = ovh.Client(
