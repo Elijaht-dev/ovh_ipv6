@@ -1,7 +1,7 @@
 {
   "domain": "ovh_ipv6",
   "name": "OVH IPv6 DNS Updater",
-  "documentation": "https://github.com/Elijaht-dev/ovh_ipv6",
+  "documentation": "https://github.com/Elijaht-dev/ovh_ipv6/readme.md",
   "issue_tracker": "https://github.com/Elijaht-dev/ovh_ipv6/issues",
   "codeowners": ["@Elijaht-dev"],
   "iot_class": "cloud_polling",
