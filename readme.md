@@ -51,7 +51,7 @@ This custom integration for Home Assistant allows you to automatically update yo
 1. Log into your OVH control panel
 2. Navigate to your domain's DNS zone
 3. Find the AAAA record you want to update
-4. Note down the DNS zone name and record ID
+4. Note down the DNS dynHost zone name and record ID
 
 ### Setting up the Integration
 

@@ -78,7 +78,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     )
 
                 dns_record = await hass.async_add_executor_job(get_record)
-                current_target = dns_record.get('target')
+                current_target = dns_record.get('ip')
                 
                 if current_target == current_ipv6:
                     _LOGGER.debug("IPv6 address unchanged, skipping update")
