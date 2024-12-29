@@ -91,4 +91,4 @@ Feel free to contribute to this project by:
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the Apache License, Version 2.0 (the "License") - see the LICENSE file for details.
