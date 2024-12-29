@@ -6,6 +6,6 @@
   "codeowners": ["@Elijaht-dev"],
   "iot_class": "cloud_polling",
   "config_flow": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "requirements": ["ovh==1.2.0"]
 }

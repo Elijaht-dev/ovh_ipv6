@@ -68,13 +68,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
             try:
                 def get_record():
-                    return ovh_client.get(f"/domain/zone/{dnszone}/record/{dns_id}")
+                    return ovh_client.get(f"/domain/zone/{dnszone}/dynHost/record/{dns_id}")
 
                 def update_record(target):
                     ovh_client.put(
-                        f"/domain/zone/{dnszone}/record/{dns_id}",
+                        f"/domain/zone/{dnszone}/dynHost/record/{dns_id}",
                         ttl=0,
-                        target=target
+                        ip=target
                     )
 
                 dns_record = await hass.async_add_executor_job(get_record)
