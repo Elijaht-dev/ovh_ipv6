@@ -19,6 +19,8 @@ This custom integration for Home Assistant allows you to automatically update yo
 
 ### HACS (Recommended)
 
+[![Opens your Home Assistant instance and adds a repository to the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Elijaht-dev&repository=ovh_ipv6&category=integration)
+
 1. Open HACS in your Home Assistant instance
 2. Click on "Integrations"
 3. Click the three dots in the top right corner
