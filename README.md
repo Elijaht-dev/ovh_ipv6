@@ -1,19 +1,21 @@
-# OVH IPv6 DNS Updater for Home Assistant
+# OVH IPv6 DynHost Updater for Home Assistant
 
-This custom integration for Home Assistant allows you to automatically update your OVH DNS records with your current IPv6 address, effectively creating a dynamic DNS service for IPv6.
+This custom integration for Home Assistant allows you to automatically update your OVH DNS records with your current IPv6 address using OVH's DynHost service.
 
 ## Features
 
 - Automatic IPv6 address detection
 - Periodic DNS record updates (every 15 minutes)
 - Easy configuration through the Home Assistant UI
-- Supports OVH DNS API
+- Uses OVH's official DynHost service
+- Supports both A (IPv4) and AAAA (IPv6) records
 
 ## Prerequisites
 
 1. An OVH account with a registered domain
-2. OVH API credentials (Application Key, Application Secret, and Consumer Key)
-3. The DNS record ID for the record you want to update
+2. DynHost enabled for your domain
+3. A DynHost username and password
+4. The hostname you want to update
 
 ## Installation
 
@@ -28,7 +30,7 @@ This custom integration for Home Assistant allows you to automatically update yo
 5. Add this repository URL: `https://github.com/Elijaht-dev/ovh_ipv6`
 6. Select category: "Integration"
 7. Click "Add"
-8. Find "OVH IPv6 DNS" in the integration list and install it
+8. Find "OVH IPv6 DynHost" in the integration list and install it
 
 ### Manual Installation
 
@@ -38,39 +40,31 @@ This custom integration for Home Assistant allows you to automatically update yo
 
 ## Configuration
 
-### Getting OVH API Credentials
+### Setting up DynHost in OVH
 
-1. Go to [OVH API Create App](https://eu.api.ovh.com/createApp/)
-2. Log in with your OVH account
-3. Create a new application
-4. Note down the Application Key and Application Secret
-5. Generate a Consumer Key using the provided credentials
-
-### Finding Your DNS Record ID
-
-1. Log into your OVH control panel
+1. Log into your OVH Control Panel
 2. Navigate to your domain's DNS zone
-3. Find the AAAA record you want to update
-4. Note down the DNS dynHost zone name and record ID
+3. Click on the "DynHost" tab
+4. Create a new DynHost user by clicking "Manage access" and "Create an identifier"
+5. Note down the username and password
+6. Add a new DynHost record for the hostname you want to update
 
 ### Setting up the Integration
 
 1. In Home Assistant, go to Configuration > Integrations
 2. Click the "+ ADD INTEGRATION" button
-3. Search for "OVH IPv6 DNS"
+3. Search for "OVH IPv6 DynHost"
 4. Enter your:
-   - Application Key
-   - Application Secret
-   - Consumer Key
-   - DNS Zone (your domain name)
-   - DNS Record ID
+   - DynHost Username
+   - DynHost Password
+   - Hostname to update (e.g., "dynamic.example.com")
 
 ## Troubleshooting
 
 ### Common Issues
 
-- **Invalid authentication credentials**: Double-check your OVH API credentials
-- **DNS zone or record ID not found**: Verify your DNS zone name and record ID
+- **Invalid authentication credentials**: Double-check your DynHost username and password
+- **Cannot connect**: Verify your internet connection and that the DynHost service is accessible
 - **No IPv6 address detected**: Ensure your network has IPv6 connectivity
 
 ### Logs

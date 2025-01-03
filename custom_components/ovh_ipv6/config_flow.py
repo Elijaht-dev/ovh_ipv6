@@ -1,27 +1,21 @@
-"""Config flow for OVH IPv6 DNS integration."""
+"""Config flow for OVH IPv6 DynHost integration."""
 from __future__ import annotations
 
 import logging
 from typing import Any
 import voluptuous as vol
+import aiohttp
 
 from homeassistant import config_entries
 from homeassistant.data_entry_flow import FlowResult
-import ovh
+from homeassistant.const import CONF_USERNAME, CONF_PASSWORD
 
-from .const import (
-    DOMAIN,
-    CONF_OVH_AK,
-    CONF_OVH_AS,
-    CONF_OVH_CK,
-    CONF_DNSZONE,
-    CONF_DNSID,
-)
+from .const import DOMAIN, CONF_HOSTNAME, DYNHOST_UPDATE_URL
 
 _LOGGER = logging.getLogger(__name__)
 
 class OvhIpv6ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for OVH IPv6 DNS."""
+    """Handle a config flow for OVH IPv6 DynHost."""
 
     VERSION = 1
 
@@ -33,31 +27,27 @@ class OvhIpv6ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             try:
-                def create_client():
-                    return ovh.Client(
-                        endpoint='ovh-eu',
-                        application_key=user_input[CONF_OVH_AK],
-                        application_secret=user_input[CONF_OVH_AS],
-                        consumer_key=user_input[CONF_OVH_CK],
-                    )
+                # Test the credentials
+                async with aiohttp.ClientSession() as session:
+                    auth = aiohttp.BasicAuth(user_input[CONF_USERNAME], user_input[CONF_PASSWORD])
+                    async with session.get(
+                        DYNHOST_UPDATE_URL,
+                        params={"system": "dyndns", "hostname": user_input[CONF_HOSTNAME]},
+                        auth=auth
+                    ) as response:
+                        if response.status == 401:
+                            errors["base"] = "invalid_auth"
+                        elif response.status != 200:
+                            errors["base"] = "cannot_connect"
+                        else:
+                            await self.async_set_unique_id(user_input[CONF_HOSTNAME])
+                            return self.async_create_entry(
+                                title=f"OVH DynHost ({user_input[CONF_HOSTNAME]})",
+                                data=user_input,
+                            )
 
-                client = await self.hass.async_add_executor_job(create_client)
-                
-                # Test the connection
-                await self.hass.async_add_executor_job(
-                    client.get,
-                    f"/domain/zone/{user_input[CONF_DNSZONE]}/record/{user_input[CONF_DNSID]}"
-                )
-
-                return self.async_create_entry(
-                    title=f"OVH DNS ({user_input[CONF_DNSZONE]})",
-                    data=user_input,
-                )
-
-            except ovh.exceptions.InvalidKey:
-                errors["base"] = "invalid_auth"
-            except ovh.exceptions.ResourceNotFoundError:
-                errors["base"] = "invalid_dns"
+            except aiohttp.ClientError:
+                errors["base"] = "cannot_connect"
             except Exception:  # pylint: disable=broad-except
                 _LOGGER.exception("Unexpected exception")
                 errors["base"] = "unknown"
@@ -66,11 +56,9 @@ class OvhIpv6ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="user",
             data_schema=vol.Schema(
                 {
-                    vol.Required(CONF_OVH_AK): str,
-                    vol.Required(CONF_OVH_AS): str,
-                    vol.Required(CONF_OVH_CK): str,
-                    vol.Required(CONF_DNSZONE): str,
-                    vol.Required(CONF_DNSID): str,
+                    vol.Required(CONF_USERNAME): str,
+                    vol.Required(CONF_PASSWORD): str,
+                    vol.Required(CONF_HOSTNAME): str,
                 }
             ),
             errors=errors,

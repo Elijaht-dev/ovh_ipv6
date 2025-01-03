@@ -2,24 +2,22 @@
   "config": {
     "step": {
       "user": {
-        "title": "Set up OVH IPv6 DNS",
-        "description": "Enter your OVH API credentials and DNS details",
+        "title": "Set up OVH DynHost IPv6",
+        "description": "Enter your OVH DynHost credentials and hostname",
         "data": {
-          "ovh_ak": "Application Key",
-          "ovh_as": "Application Secret",
-          "ovh_ck": "Consumer Key",
-          "dnszone": "DNS Zone",
-          "dnsid": "DNS Record ID"
+          "username": "DynHost Username",
+          "password": "DynHost Password",
+          "hostname": "Hostname to update"
         }
       }
     },
     "error": {
       "invalid_auth": "Invalid authentication credentials",
-      "invalid_dns": "DNS zone or record ID not found",
+      "cannot_connect": "Failed to connect to DynHost service",
       "unknown": "Unexpected error"
     },
     "abort": {
-      "already_configured": "OVH DNS zone is already configured"
+      "already_configured": "This hostname is already configured"
     }
   }
 }
