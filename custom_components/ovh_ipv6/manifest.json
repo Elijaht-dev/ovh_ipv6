@@ -1,6 +1,6 @@
 {
   "domain": "ovh_ipv6",
-  "name": "OVH IPv6 DNS Updater",
+  "name": "OVH IPv6 DynDNS Updater",
   "documentation": "https://github.com/Elijaht-dev/ovh_ipv6/README.md",
   "issue_tracker": "https://github.com/Elijaht-dev/ovh_ipv6/issues",
   "codeowners": ["@Elijaht-dev"],

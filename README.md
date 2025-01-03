@@ -4,11 +4,11 @@ This custom integration for Home Assistant allows you to automatically update yo
 
 ## Features
 
-- Automatic IPv6 address detection
+- Automatic IPv6 address detection using Home Assistant's network API
 - Periodic DNS record updates (every 15 minutes)
 - Easy configuration through the Home Assistant UI
 - Uses OVH's official DynHost service
-- Supports both A (IPv4) and AAAA (IPv6) records
+- Supports AAAA (IPv6) records
 
 ## Prerequisites
 
@@ -16,6 +16,7 @@ This custom integration for Home Assistant allows you to automatically update yo
 2. DynHost enabled for your domain
 3. A DynHost username and password
 4. The hostname you want to update
+5. A working IPv6 connection
 
 ## Installation
 
@@ -59,13 +60,21 @@ This custom integration for Home Assistant allows you to automatically update yo
    - DynHost Password
    - Hostname to update (e.g., "dynamic.example.com")
 
+The integration will automatically:
+- Detect your non-link-local IPv6 address
+- Update your DynHost record every 15 minutes
+- Retry on connection failures
+
 ## Troubleshooting
 
 ### Common Issues
 
 - **Invalid authentication credentials**: Double-check your DynHost username and password
 - **Cannot connect**: Verify your internet connection and that the DynHost service is accessible
-- **No IPv6 address detected**: Ensure your network has IPv6 connectivity
+- **No IPv6 address detected**: The integration searches for a non-link-local IPv6 address on all enabled network adapters. Ensure:
+  - Your network has IPv6 connectivity
+  - Your Home Assistant instance has a public IPv6 address
+  - The network adapter is enabled and properly configured
 
 ### Logs
 
