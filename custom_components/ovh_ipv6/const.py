@@ -8,4 +8,4 @@ CONF_HOSTNAME = "hostname"
 CONF_SCAN_INTERVAL = "scan_interval"
 
 DEFAULT_INTERVAL = timedelta(minutes=15)
-DYNHOST_UPDATE_URL = "https://dns.eu.ovhapis.com/nic/update"
+DYNHOST_UPDATE_URL = "dns.eu.ovhapis.com/nic/update"

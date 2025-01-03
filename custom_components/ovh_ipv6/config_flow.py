@@ -28,13 +28,15 @@ class OvhIpv6ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             try:
                 # Test the credentials
+                base_url = DYNHOST_UPDATE_URL
+                url = f"https://{user_input[CONF_USERNAME]}:{user_input[CONF_PASSWORD]}@{base_url}"
+                
                 async with aiohttp.ClientSession() as session:
-                    auth = aiohttp.BasicAuth(user_input[CONF_USERNAME], user_input[CONF_PASSWORD])
-                    async with session.get(
-                        DYNHOST_UPDATE_URL,
-                        params={"system": "dyndns", "hostname": user_input[CONF_HOSTNAME]},
-                        auth=auth
-                    ) as response:
+                    params = {
+                        "system": "dyndns",
+                        "hostname": user_input[CONF_HOSTNAME]
+                    }
+                    async with session.get(url, params=params) as response:
                         if response.status == 401:
                             errors["base"] = "invalid_auth"
                         elif response.status != 200:

@@ -46,18 +46,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 return False
 
             async with aiohttp.ClientSession() as session:
-                auth = aiohttp.BasicAuth(username, password)
+                # Construct URL with credentials
+                base_url = DYNHOST_UPDATE_URL
+                url = f"https://{username}:{password}@{base_url}"
                 params = {
                     "system": "dyndns",
                     "hostname": hostname,
                     "myip": current_ipv6
                 }
                 
-                async with session.get(
-                    DYNHOST_UPDATE_URL,
-                    params=params,
-                    auth=auth
-                ) as response:
+                async with session.get(url, params=params) as response:
                     if response.status == 200:
                         response_text = await response.text()
                         _LOGGER.info("DynHost update successful: %s", response_text)
