@@ -5,6 +5,7 @@ import logging
 from typing import Any
 import voluptuous as vol
 import aiohttp
+from ipaddress import IPv6Address
 
 from homeassistant import config_entries
 from homeassistant.data_entry_flow import FlowResult
@@ -34,11 +35,14 @@ class OvhIpv6ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 
                 for adapter in network_info:
                     if adapter["enabled"] and adapter["ipv6"]:
-                        # Find the first non-link-local IPv6 address
-                        for ip in adapter["ipv6"]:
-                            if not ip.startswith("fe80:"):
-                                ipv6_address = ip
-                                break
+                        for ip_info in adapter["ipv6"]:
+                            try:
+                                addr = IPv6Address(ip_info["address"])
+                                if not addr.is_link_local:
+                                    ipv6_address = str(addr)
+                                    break
+                            except ValueError:
+                                continue
                     if ipv6_address:
                         break
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import logging
 import aiohttp
+from ipaddress import IPv6Address, ip_network
 from homeassistant.const import CONF_USERNAME, CONF_PASSWORD
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -35,10 +36,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             network_info = await network.async_get_adapters(hass)
             for adapter in network_info:
                 if adapter["enabled"] and adapter["ipv6"]:
-                    # Find the first non-link-local IPv6 address
-                    for ip in adapter["ipv6"]:
-                        if not ip.startswith("fe80:"):
-                            return ip
+                    for ip_info in adapter["ipv6"]:
+                        try:
+                            addr = IPv6Address(ip_info["address"])
+                            if not addr.is_link_local:
+                                return str(addr)
+                        except ValueError:
+                            continue
             _LOGGER.error("No valid IPv6 address found")
             return None
         except Exception as e:
