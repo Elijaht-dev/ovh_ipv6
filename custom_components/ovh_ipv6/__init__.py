@@ -7,6 +7,7 @@ from homeassistant.const import CONF_USERNAME, CONF_PASSWORD
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.event import async_track_time_interval
+from homeassistant.components import network
 
 from .const import (
     DOMAIN,
@@ -29,11 +30,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hostname = entry.data[CONF_HOSTNAME]
 
     async def get_current_ipv6():
-        """Get current IPv6 address from ipify.org."""
+        """Get current IPv6 address from Home Assistant network API."""
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get('https://api6.ipify.org') as response:
-                    return await response.text()
+            network_info = await network.async_get_adapters(hass)
+            for adapter in network_info:
+                if adapter["enabled"] and adapter["ipv6"]:
+                    # Find the first non-link-local IPv6 address
+                    for ip in adapter["ipv6"]:
+                        if not ip.startswith("fe80:"):
+                            return ip
+            _LOGGER.error("No valid IPv6 address found")
+            return None
         except Exception as e:
             _LOGGER.error("Error getting IPv6 address: %s", str(e))
             return None
