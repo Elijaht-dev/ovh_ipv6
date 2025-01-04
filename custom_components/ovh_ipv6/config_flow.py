@@ -1,27 +1,23 @@
-"""Config flow for OVH IPv6 DNS integration."""
+"""Config flow for OVH IPv6 DynHost integration."""
 from __future__ import annotations
 
 import logging
 from typing import Any
 import voluptuous as vol
+import aiohttp
+from ipaddress import IPv6Address
 
 from homeassistant import config_entries
 from homeassistant.data_entry_flow import FlowResult
-import ovh
+from homeassistant.const import CONF_USERNAME, CONF_PASSWORD
+from homeassistant.components import network
 
-from .const import (
-    DOMAIN,
-    CONF_OVH_AK,
-    CONF_OVH_AS,
-    CONF_OVH_CK,
-    CONF_DNSZONE,
-    CONF_DNSID,
-)
+from .const import DOMAIN, CONF_HOSTNAME, DYNHOST_UPDATE_URL
 
 _LOGGER = logging.getLogger(__name__)
 
 class OvhIpv6ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for OVH IPv6 DNS."""
+    """Handle a config flow for OVH IPv6 DynHost."""
 
     VERSION = 1
 
@@ -33,31 +29,67 @@ class OvhIpv6ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             try:
-                def create_client():
-                    return ovh.Client(
-                        endpoint='ovh-eu',
-                        application_key=user_input[CONF_OVH_AK],
-                        application_secret=user_input[CONF_OVH_AS],
-                        consumer_key=user_input[CONF_OVH_CK],
+                # Get IPv6 address from Home Assistant's network API
+                network_info = await network.async_get_adapters(self.hass)
+                ipv6_address = None
+                
+                for adapter in network_info:
+                    if adapter["enabled"] and adapter["ipv6"]:
+                        for ip_info in adapter["ipv6"]:
+                            try:
+                                addr = IPv6Address(ip_info["address"])
+                                if not addr.is_link_local:
+                                    ipv6_address = str(addr)
+                                    break
+                            except ValueError:
+                                continue
+                    if ipv6_address:
+                        break
+
+                if not ipv6_address:
+                    errors["base"] = "no_ipv6"
+                    return self.async_show_form(
+                        step_id="user",
+                        data_schema=vol.Schema({
+                            vol.Required(CONF_USERNAME): str,
+                            vol.Required(CONF_PASSWORD): str,
+                            vol.Required(CONF_HOSTNAME): str,
+                        }),
+                        errors=errors,
                     )
 
-                client = await self.hass.async_add_executor_job(create_client)
+                # Test the credentials
+                base_url = DYNHOST_UPDATE_URL
+                url = f"https://{user_input[CONF_USERNAME]}:{user_input[CONF_PASSWORD]}@{base_url}"
                 
-                # Test the connection
-                await self.hass.async_add_executor_job(
-                    client.get,
-                    f"/domain/zone/{user_input[CONF_DNSZONE]}/record/{user_input[CONF_DNSID]}"
-                )
+                async with aiohttp.ClientSession() as session:
+                    params = {
+                        "system": "dyndns",
+                        "hostname": user_input[CONF_HOSTNAME],
+                        "myip": ipv6_address
+                    }
+                    async with session.get(url, params=params) as response:
+                        if response.status == 401:
+                            errors["base"] = "invalid_auth"
+                            _LOGGER.error("Authentication failed for %s", user_input[CONF_HOSTNAME])
+                        elif response.status != 200:
+                            response_text = await response.text()
+                            errors["base"] = "cannot_connect"
+                            _LOGGER.error(
+                                "Connection failed for %s with status %s: %s",
+                                user_input[CONF_HOSTNAME],
+                                response.status,
+                                response_text
+                            )
+                        else:
+                            await self.async_set_unique_id(user_input[CONF_HOSTNAME])
+                            return self.async_create_entry(
+                                title=f"OVH DynHost ({user_input[CONF_HOSTNAME]})",
+                                data=user_input,
+                            )
 
-                return self.async_create_entry(
-                    title=f"OVH DNS ({user_input[CONF_DNSZONE]})",
-                    data=user_input,
-                )
-
-            except ovh.exceptions.InvalidKey:
-                errors["base"] = "invalid_auth"
-            except ovh.exceptions.ResourceNotFoundError:
-                errors["base"] = "invalid_dns"
+            except aiohttp.ClientError:
+                errors["base"] = "cannot_connect"
             except Exception:  # pylint: disable=broad-except
                 _LOGGER.exception("Unexpected exception")
                 errors["base"] = "unknown"
@@ -66,11 +98,9 @@ class OvhIpv6ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="user",
             data_schema=vol.Schema(
                 {
-                    vol.Required(CONF_OVH_AK): str,
-                    vol.Required(CONF_OVH_AS): str,
-                    vol.Required(CONF_OVH_CK): str,
-                    vol.Required(CONF_DNSZONE): str,
-                    vol.Required(CONF_DNSID): str,
+                    vol.Required(CONF_USERNAME): str,
+                    vol.Required(CONF_PASSWORD): str,
+                    vol.Required(CONF_HOSTNAME): str,
                 }
             ),
             errors=errors,
