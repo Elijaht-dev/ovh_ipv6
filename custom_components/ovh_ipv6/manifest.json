@@ -1,10 +1,11 @@
 {
   "domain": "ovh_ipv6",
   "name": "OVH IPv6 DynDNS Updater",
-  "documentation": "https://github.com/Elijaht-dev/ovh_ipv6/README.md",
-  "issue_tracker": "https://github.com/Elijaht-dev/ovh_ipv6/issues",
   "codeowners": ["@Elijaht-dev"],
-  "iot_class": "cloud_polling",
   "config_flow": true,
+  "dependencies": ["network"],
+  "documentation": "https://github.com/Elijaht-dev/ovh_ipv6/README.md",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/Elijaht-dev/ovh_ipv6/issues",
   "version": "2.0.3-alpha"
 }
