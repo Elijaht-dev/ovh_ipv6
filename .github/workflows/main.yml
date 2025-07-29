@@ -15,7 +15,6 @@ jobs:
         uses: "hacs/action@main"
         with:
           category: "integration"
-          name: Validate with hassfest
   validate-hassfest:
     runs-on: "ubuntu-latest"
     steps:
