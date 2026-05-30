@@ -4,8 +4,8 @@
   "codeowners": ["@Elijaht-dev"],
   "config_flow": true,
   "dependencies": ["network"],
-  "documentation": "https://github.com/Elijaht-dev/ovh_ipv6/README.md",
+  "documentation": "https://github.com/Elijaht-dev/ovh_ipv6",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/Elijaht-dev/ovh_ipv6/issues",
-  "version": "2.0.3-alpha"
+  "version": "2.0.5"
 }

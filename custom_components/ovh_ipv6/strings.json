@@ -14,6 +14,7 @@
     "error": {
       "invalid_auth": "Invalid authentication credentials",
       "cannot_connect": "Failed to connect to DynHost service",
+      "no_ipv6": "No public IPv6 address found on enabled Home Assistant network adapters",
       "unknown": "Unexpected error"
     },
     "abort": {

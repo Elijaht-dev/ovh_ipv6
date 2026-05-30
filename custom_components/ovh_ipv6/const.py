@@ -9,3 +9,4 @@ CONF_SCAN_INTERVAL = "scan_interval"
 
 DEFAULT_INTERVAL = timedelta(minutes=15)
 DYNHOST_UPDATE_URL = "dns.eu.ovhapis.com/nic/update"
+DYNDNS_SUCCESS_RESPONSES = ("good", "nochg")
